@@ -1,0 +1,19 @@
+.button {
+  width: 100%;
+  padding: 0.4em 0.5em;
+  font-size: 20px;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  background-color: white;
+  color: var(--light-red);
+  border: none;
+  transition: opacity 0.3s;
+}
+
+.button:not(.button:disabled) {
+  cursor: pointer;
+}
+
+.button:disabled {
+  opacity: 0.8;
+}
