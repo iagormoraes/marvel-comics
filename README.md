@@ -4,6 +4,20 @@
 
 ⚠️ Before start testing, please ensure that `src/config/marvel.js` is filled with the public and private keys.
 
+## Dependencies
+
+#### @reduxjs/toolkit
+
+A very good redux wrapper that allows to write reducers in a simple way, continuing being immutable but with immer.js under the hood.
+
+#### @testing-library/react-hooks
+
+A solution for writting tests for hooks.
+
+#### crypto-js
+
+A library that has a set of hash methods.
+
 ## Available Scripts
 
 In the project directory, you can run:
