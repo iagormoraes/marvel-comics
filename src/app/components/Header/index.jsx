@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styles from './Header.module.css'
 
 import Logo from '../Logo'
@@ -8,11 +8,21 @@ function HeaderComponent({ children }) {
   const [shadowHeight, setShadowHeight] = useState(0)
   const containerRef = useRef(null)
 
-  useEffect(() => {
+  const handleCalculateHeight = useCallback(() => {
     const container = containerRef.current
 
     setShadowHeight(container.clientHeight + spaceMargin)
   }, [])
+
+  useEffect(() => {
+    handleCalculateHeight()
+
+    window.addEventListener('load', handleCalculateHeight)
+
+    return () => {
+      window.removeEventListener('load', handleCalculateHeight)
+    }
+  }, [handleCalculateHeight])
 
   return (
     <section style={{ height: shadowHeight }}>
