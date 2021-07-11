@@ -3,8 +3,9 @@ import comicService from './comicService'
 
 const initialState = {
   search: '',
+  character: null,
   list: [],
-  favouriteList: [],
+  favourites: {},
   pagination: {
     currentPage: 1,
     lastPage: 1,
@@ -12,8 +13,18 @@ const initialState = {
   loading: false,
 }
 
-export const fetchComicAsync = createAsyncThunk('comic/fetchComics', async (page) => {
-  return await comicService().listComics({ page })
+export const fetchComicAsync = createAsyncThunk('comic/fetchComics', async ({ character, page }) => {
+  return await comicService().listComics({ character, page })
+})
+
+export const fetchComicBySearchAsync = createAsyncThunk('comic/fetchComicsBySearch', async ({ name }) => {
+  let characterId = null
+
+  if (name) {
+    characterId = await comicService().fetchCharacterId({ name })
+  }
+
+  return await comicService().listComics({ character: characterId, page: 1 })
 })
 
 export const comicSlice = createSlice({
@@ -24,35 +35,62 @@ export const comicSlice = createSlice({
       state.search = action.payload
     },
     like: (state, action) => {
-      state.favouriteList = state.favouriteList.push(action.payload)
+      state.favourites[action.payload] = action.payload
     },
     dislike: (state, action) => {
-      state.favouriteList = state.favouriteList.filter((item) => item !== action.payload)
+      delete state.favourites[action.payload]
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchComicAsync.pending, (state) => {
-        state.loading = true
-      })
-      .addCase(fetchComicAsync.fulfilled, (state, action) => {
-        state.loading = false
-        state.list = action.payload.data
-        state.pagination = action.payload.metadata
-      })
+      .addMatcher(
+        (action) => action.type.endsWith('/pending'),
+        (state) => {
+          state.loading = true
+        }
+      )
+      .addMatcher(
+        (action) => action.type.endsWith('/fulfilled'),
+        (state, action) => {
+          state.loading = false
+          state.list = action.payload.data
+          state.pagination = action.payload.metadata
+          state.character = action.payload.character
+        }
+      )
+      .addMatcher(
+        (action) => action.type.endsWith('/rejected'),
+        (state) => {
+          state.loading = false
+        }
+      )
   },
 })
 
+export const { changeSearch, like, dislike } = comicSlice.actions
+
 export const selectComicState = (state) => state
 
-export const selectComicSearch = (state) => state.search
+export const selectComicSearch = (state) => state.comic.search
 
-export const selectComicList = (state) => state.list
+export const selectComicList = (state) => state.comic.list
 
-export const selectComicFavouriteList = (state) => state.favouriteList
+export const selectComicFavourites = (state) => state.comic.favourites
 
-export const selectComicPagination = (state) => state.pagination
+export const selectComicPagination = (state) => state.comic.pagination
 
-export const selectComicLoading = (state) => state.loading
+export const selectComicLoading = (state) => state.comic.loading
+
+export const selectComicCharacter = (state) => state.comic.character
+
+export const selectComicCombined = (listProps) => (state) => {
+  const selectedObject = {}
+
+  for (const property of listProps) {
+    selectedObject[property] = state.comic[property]
+  }
+
+  return selectedObject
+}
 
 export default comicSlice.reducer
