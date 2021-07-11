@@ -8,19 +8,47 @@ const comicService = () => {
 
   return {
     /**
+     * Fetch character id.
+     * @param name
+     * @returns {Promise<Number|undefined>} Return queried character id.
+     */
+    async fetchCharacterId({ name }) {
+      const params = this._buildQueryParameters({
+        name,
+      })
+
+      const { data: response } = await (
+        await fetch(`${baseUrl}characters?${params}`, {
+          method: 'GET',
+          mode: 'cors',
+          cache: 'default',
+        })
+      ).json()
+
+      return response.results[0]?.id ?? -1
+    },
+
+    /**
      * Fetch comics paginated.
+     * @param {Number} character Character match id.
      * @param {Number} perPage
      * @param {Number} page
      * @returns {Promise<{metadata: {lastPage: number, currentPage: number}, data: *}>} response
      */
-    async listComics({ perPage = 20, page = 1 }) {
-      const offset = perPage * page - 1
+    async listComics({ character, perPage = 20, page = 1 }) {
+      const offset = perPage * (page - 1)
 
-      const params = this._buildQueryParameters({
+      let paramsObject = {
         limit: perPage,
         offset: offset,
-        orderBy: '-onsaleDate',
-      })
+        orderBy: '-focDate,-onsaleDate,-modified',
+      }
+
+      if (character) {
+        paramsObject.characters = character
+      }
+
+      const params = this._buildQueryParameters(paramsObject)
 
       const { data: response } = await (
         await fetch(`${baseUrl}comics?${params}`, {
@@ -34,7 +62,7 @@ const comicService = () => {
 
       const data = response.results.map((item) => comicMap().toDomain(item))
 
-      return { metadata, data }
+      return { metadata, data, character: paramsObject.characters || null }
     },
 
     /**
