@@ -1,0 +1,16 @@
+.input {
+  padding: 0.5em 1em;
+  border-radius: 3px;
+  border: none;
+  color: var(--light-grey);
+  font-family: Verdana, Arial, sans-serif;
+  font-style: italic;
+  box-shadow: var(--small-shadow);
+  width: 100%;
+  transition: opacity 0.3s;
+}
+
+.input:disabled {
+  background-color: white;
+  opacity: 0.8;
+}
