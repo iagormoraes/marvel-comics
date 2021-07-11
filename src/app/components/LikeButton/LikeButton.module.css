@@ -1,0 +1,19 @@
+.container {
+  display: inline-block;
+}
+
+.like-button {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  transition: transform 0.2s cubic-bezier(0.35, -0.49, 0.67, 1.5);
+  will-change: transform;
+}
+
+.like-button:hover {
+  transform: scale(1.2);
+}
+
+.like-button:active {
+  transform: scale(1.1);
+}
